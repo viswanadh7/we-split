@@ -18,6 +18,13 @@ const TabLayout = () => {
                 }}
             />
             <Tabs.Screen
+                name="transaction"
+                options={{
+                    headerShown: false,
+                    title: 'Add',
+                }}
+            />
+            <Tabs.Screen
                 name="history"
                 options={{ headerShown: false, title: 'History' }}
             />
