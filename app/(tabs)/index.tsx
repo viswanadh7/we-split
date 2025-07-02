@@ -1,9 +1,10 @@
 import ContributorCard from '@/components/ContributorCard';
 import CustomText from '@/components/CustomText';
 import CustomView from '@/components/CustomView';
+import Header from '@/components/Header';
 import TotalCard from '@/components/TotalCard';
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 
 const Dashboard = () => {
     const contributors = [
@@ -16,24 +17,32 @@ const Dashboard = () => {
 
     return (
         <CustomView>
-            <View>
-                <CustomText style={styles.heading}>WeSplit</CustomText>
-                <CustomText style={styles.tagline}>
-                    For friends who share everything — even bills.
-                </CustomText>
-            </View>
+            <Header />
+            <CustomText
+                style={{
+                    fontSize: 20,
+                    marginTop: 30,
+                    textDecorationLine: 'underline',
+                }}
+            >
+                Room name:
+            </CustomText>
             <View style={styles.cardView}>
                 <TotalCard total={7593} />
             </View>
             <View>
                 <CustomText style={{ fontSize: 20 }}>Contributors:</CustomText>
-                {contributors.map((item, index) => (
-                    <ContributorCard
-                        key={index}
-                        name={item.name}
-                        amount={item.amount}
-                    />
-                ))}
+                <FlatList
+                    data={contributors}
+                    showsVerticalScrollIndicator={false}
+                    renderItem={({ item, index }) => (
+                        <ContributorCard
+                            key={index}
+                            name={item.name}
+                            amount={item.amount}
+                        />
+                    )}
+                />
             </View>
         </CustomView>
     );
@@ -42,18 +51,9 @@ const Dashboard = () => {
 export default Dashboard;
 
 const styles = StyleSheet.create({
-    heading: {
-        fontSize: 25,
-        fontWeight: 'bold',
-    },
-    tagline: {
-        fontWeight: 'light',
-        width: '60%',
-        marginTop: 5,
-    },
     cardView: {
         flexDirection: 'row',
         justifyContent: 'center',
-        marginVertical: 30,
+        marginBottom: 30,
     },
 });
