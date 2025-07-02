@@ -2,13 +2,15 @@ import CustomView from '@/components/CustomView';
 import HistoryCard from '@/components/HistoryCard';
 import { transactions } from '@/sample-data';
 import React from 'react';
-import { ScrollView } from 'react-native';
+import { FlatList } from 'react-native';
 
 const History = () => {
     return (
         <CustomView>
-            <ScrollView>
-                {transactions.map((item, index) => (
+            <FlatList
+                data={transactions}
+                showsVerticalScrollIndicator={false}
+                renderItem={({ item, index }) => (
                     <HistoryCard
                         key={index}
                         date={item.date}
@@ -16,8 +18,8 @@ const History = () => {
                         amount={item.amount}
                         description={item.description}
                     />
-                ))}
-            </ScrollView>
+                )}
+            />
         </CustomView>
     );
 };
