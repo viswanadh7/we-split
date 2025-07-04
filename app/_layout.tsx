@@ -14,6 +14,10 @@ export default function RootLayout() {
                     name="signup/index"
                     options={{ headerShown: false }}
                 />
+                <Stack.Screen
+                    name="newroom/index"
+                    options={{ headerShown: false }}
+                />
             </Stack>
         </ContextProvider>
     );
