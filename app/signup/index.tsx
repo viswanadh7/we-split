@@ -39,6 +39,7 @@ const SignUp = () => {
                 message:
                     'Username already taken. Please try with different one',
             });
+            return;
         }
         try {
             const hashedPassword = await expoCrypto.hashPassword(
