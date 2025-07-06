@@ -1,18 +1,23 @@
 import CustomText from '@/components/CustomText';
 import CustomTextInput from '@/components/CustomTextInput';
 import CustomView from '@/components/CustomView';
+import { firebase } from '@/firebase/config';
 import { useGlobalState } from '@/hooks/global-state';
+import expoCrypto from '@/utils/expoCrypto';
 import { signInSchema } from '@/validations/schema';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
+import { doc, getDoc } from 'firebase/firestore';
 import React from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const SignIn = () => {
-    const { theme } = useGlobalState();
+    const { theme, saveUserDetails } = useGlobalState();
+    const router = useRouter();
     const {
         control,
+        setError,
         handleSubmit,
         formState: { errors },
     } = useForm({
@@ -23,7 +28,34 @@ const SignIn = () => {
         username: string;
         password: string;
     }) => {
-        console.log(loginDetails);
+        const user = await getDoc(
+            doc(firebase, 'users', loginDetails.username)
+        );
+        // Check if the user exists in the database
+        if (!user.exists()) {
+            setError('username', {
+                message:
+                    'Username does not exist. Please sign up to create account.',
+            });
+            return;
+        }
+        const userData = user.data();
+        const isPasswordMatched = await expoCrypto.comparePasswords(
+            loginDetails.password,
+            userData.password
+        );
+        if (isPasswordMatched) {
+            // Save user details in global state
+            const userDetails = {
+                name: userData.name,
+                username: userData.username,
+            };
+            await saveUserDetails(userDetails);
+            // Navigate to the dashboard screen
+            router.replace('/(tabs)');
+        } else {
+            setError('password', { message: 'Incorrect password' });
+        }
     };
     return (
         <CustomView>
