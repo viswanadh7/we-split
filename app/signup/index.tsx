@@ -2,19 +2,24 @@ import CustomKeyboardAvoidingView from '@/components/CustomKeyboardAvoidingView'
 import CustomText from '@/components/CustomText';
 import CustomTextInput from '@/components/CustomTextInput';
 import CustomView from '@/components/CustomView';
+import { firebase } from '@/firebase/config';
 import { useGlobalState } from '@/hooks/global-state';
+import expoCrypto from '@/utils/expoCrypto';
 import { signUpSchema } from '@/validations/schema';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import React from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const SignUp = () => {
-    const { theme } = useGlobalState();
+    const { theme, saveUserDetails } = useGlobalState();
+    const router = useRouter();
     const {
         control,
         handleSubmit,
+        setError,
         formState: { errors },
     } = useForm({
         resolver: yupResolver(signUpSchema),
@@ -25,7 +30,41 @@ const SignUp = () => {
         name: string;
         password: string;
     }) => {
-        console.log(signUpDetails);
+        const user = await getDoc(
+            doc(firebase, 'users', signUpDetails.username)
+        );
+        // Check if the user already exists in the database
+        if (user.exists()) {
+            setError('username', {
+                message:
+                    'Username already taken. Please try with different one',
+            });
+        }
+        try {
+            const hashedPassword = await expoCrypto.hashPassword(
+                signUpDetails.password
+            );
+            const newUser = {
+                name: signUpDetails.name,
+                username: signUpDetails.username,
+                password: hashedPassword,
+            };
+            // Save the new user in the database
+            await setDoc(
+                doc(firebase, 'users', signUpDetails.username),
+                newUser
+            );
+            // Save user details in global state
+            const userDetails = {
+                name: newUser.name,
+                username: newUser.username,
+            };
+            await saveUserDetails(userDetails);
+            // Navigate to the dashboard screen
+            router.replace('/(tabs)');
+        } catch (error) {
+            console.log(error);
+        }
     };
     return (
         <CustomView>
