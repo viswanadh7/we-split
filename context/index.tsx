@@ -1,5 +1,5 @@
 import { darkTheme, lightTheme, ThemeType } from '@/styles/color';
-import { UserDetailsType } from '@/types/commonTypes';
+import { RoomType, UserDetailsType } from '@/types/commonTypes';
 import { useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { createContext, ReactNode, useEffect, useState } from 'react';
@@ -7,8 +7,12 @@ import { useColorScheme } from 'react-native';
 
 type TContext = {
     theme: ThemeType;
+
     userDetails?: UserDetailsType;
     setUserDetails: (userDetails: UserDetailsType) => void;
+
+    currentRoom?: RoomType;
+    setCurrentRoom?: (room: RoomType) => void;
 
     saveUserDetails: (userDetails: UserDetailsType) => Promise<void>;
 };
@@ -21,6 +25,7 @@ const ContextProvider = ({ children }: { children: ReactNode }) => {
     const theme = colorScheme === 'dark' ? darkTheme : lightTheme;
 
     const [userDetails, setUserDetails] = useState<UserDetailsType>();
+    const [currentRoom, setCurrentRoom] = useState<RoomType>({} as RoomType);
 
     useEffect(() => {
         fetchUserDetails();
@@ -58,7 +63,16 @@ const ContextProvider = ({ children }: { children: ReactNode }) => {
 
     return (
         <Context.Provider
-            value={{ theme, userDetails, setUserDetails, saveUserDetails }}
+            value={{
+                theme,
+
+                userDetails,
+                setUserDetails,
+                currentRoom,
+                setCurrentRoom,
+
+                saveUserDetails,
+            }}
         >
             {children}
         </Context.Provider>
